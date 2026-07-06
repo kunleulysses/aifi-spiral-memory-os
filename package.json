@@ -1,0 +1,21 @@
+{
+  "name": "aifi-spiral-memory-os",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Qwen-powered spiral memory agent that turns outcomes into evolving behavior.",
+  "license": "MIT",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node backend/creature-server.cjs",
+    "check:node": "node -c backend/creature-server.cjs && node -c backend/qwen-cloud-client.cjs",
+    "audit:finance-isolation": "node scripts/audit-finance-isolation.cjs"
+  },
+  "keywords": [
+    "qwen",
+    "alibaba-cloud",
+    "agent-memory",
+    "multi-agent",
+    "spiral-memory",
+    "autonomous-agents"
+  ]
+}
