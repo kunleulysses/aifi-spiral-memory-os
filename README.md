@@ -41,7 +41,7 @@ Environment variables:
 ```bash
 export DASHSCOPE_API_KEY="your-qwen-cloud-api-key"
 export AIFI_QWEN_MODEL="qwen3.5-flash"
-export AIFI_QWEN_CHAT_URL="https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions"
+export AIFI_QWEN_CHAT_URL="https://dashscope-us.aliyuncs.com/compatible-mode/v1/chat/completions"
 node backend/creature-server.cjs
 ```
 

@@ -1,7 +1,7 @@
 const https = require('https');
 
 const DEFAULT_MODEL = 'qwen3.5-flash';
-const DEFAULT_BASE_URL = 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions';
+const DEFAULT_BASE_URL = 'https://dashscope-us.aliyuncs.com/compatible-mode/v1/chat/completions';
 
 class QwenCloudClient {
   constructor(options = {}) {

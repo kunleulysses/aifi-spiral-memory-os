@@ -19,7 +19,7 @@ Environment variables used by the backend:
 ```bash
 DASHSCOPE_API_KEY=...
 AIFI_QWEN_MODEL=qwen3.5-flash
-AIFI_QWEN_CHAT_URL=https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions
+AIFI_QWEN_CHAT_URL=https://dashscope-us.aliyuncs.com/compatible-mode/v1/chat/completions
 ```
 
 ## Alibaba Cloud Runtime Proof
