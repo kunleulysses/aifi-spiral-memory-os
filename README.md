@@ -83,6 +83,12 @@ swift run aifi-creature-demo
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
+## Devpost Media And Demo Video
+
+Gallery images are in [`media/devpost`](media/devpost).
+
+The complete recording plan is in [`docs/VIDEO_DEMO_SCRIPT.md`](docs/VIDEO_DEMO_SCRIPT.md).
+
 ## Alibaba Cloud Deployment Proof
 
 See [`docs/alibaba-cloud-deployment-proof.md`](docs/alibaba-cloud-deployment-proof.md).
