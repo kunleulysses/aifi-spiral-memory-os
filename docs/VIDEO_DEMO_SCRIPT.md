@@ -14,10 +14,10 @@ export DASHSCOPE_API_KEY="paste-your-qwen-cloud-key-here"
 export AIFI_QWEN_MODEL="qwen3.5-flash"
 ```
 
-Start the backend in one terminal:
+Start the backend in one terminal. This launcher uses your normal `node` if installed, or the bundled Codex Node runtime if it exists:
 
 ```bash
-node backend/creature-server.cjs
+./scripts/run-demo-backend.sh
 ```
 
 Use a second terminal for the demo commands. Increase terminal text size before recording.
@@ -172,4 +172,3 @@ Optional supporting images:
 - Keep the mouse still when speaking.
 - Upload the finished video to YouTube as unlisted or public, then paste that link into Devpost.
 - If Qwen rate-limits during recording, say: "The fallback path is active so judges can still test the project." Then continue.
-

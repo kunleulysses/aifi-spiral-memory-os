@@ -9,7 +9,7 @@ The backend uses only built-in Node modules and Qwen Cloud environment variables
 ```bash
 DASHSCOPE_API_KEY=... \
 AIFI_QWEN_MODEL=qwen3.5-flash \
-node backend/creature-server.cjs
+./scripts/run-demo-backend.sh
 ```
 
 The Qwen key must stay in the process environment or deployment secret manager. Do not commit it to this repo or embed it in the iOS app.

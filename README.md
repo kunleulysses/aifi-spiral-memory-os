@@ -42,7 +42,7 @@ Environment variables:
 export DASHSCOPE_API_KEY="your-qwen-cloud-api-key"
 export AIFI_QWEN_MODEL="qwen3.5-flash"
 export AIFI_QWEN_CHAT_URL="https://dashscope-us.aliyuncs.com/compatible-mode/v1/chat/completions"
-node backend/creature-server.cjs
+./scripts/run-demo-backend.sh
 ```
 
 If no Qwen key is present, the backend uses a deterministic local fallback so judges can still run and test the project.
@@ -50,7 +50,7 @@ If no Qwen key is present, the backend uses a deterministic local fallback so ju
 ## Run Backend
 
 ```bash
-node backend/creature-server.cjs
+./scripts/run-demo-backend.sh
 ```
 
 Health check:
