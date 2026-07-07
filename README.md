@@ -42,6 +42,9 @@ Environment variables:
 export DASHSCOPE_API_KEY="your-qwen-cloud-api-key"
 export AIFI_QWEN_MODEL="qwen3.5-flash"
 export AIFI_QWEN_CHAT_URL="https://dashscope-us.aliyuncs.com/compatible-mode/v1/chat/completions"
+export AIFI_QWEN_TIMEOUT_MS=90000
+export AIFI_QWEN_RETRIES=4
+export AIFI_QWEN_IP_FAMILY=4
 ./scripts/run-demo-backend.sh
 ```
 

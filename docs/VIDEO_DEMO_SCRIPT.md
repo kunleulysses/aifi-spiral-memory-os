@@ -12,6 +12,9 @@ Run the key export off camera so the API key never appears in the video:
 cd /Users/ulyssesadejokun/Documents/Codex/2026-06-25/is/aifi-spiral-memory-os-public
 export DASHSCOPE_API_KEY="paste-your-qwen-cloud-key-here"
 export AIFI_QWEN_MODEL="qwen3.5-flash"
+export AIFI_QWEN_TIMEOUT_MS=90000
+export AIFI_QWEN_RETRIES=4
+export AIFI_QWEN_IP_FAMILY=4
 ```
 
 Start the backend in one terminal. This launcher uses your normal `node` if installed, or the bundled Codex Node runtime if it exists:
@@ -21,6 +24,14 @@ Start the backend in one terminal. This launcher uses your normal `node` if inst
 ```
 
 Use a second terminal for the demo commands. Increase terminal text size before recording.
+
+Optional Qwen smoke test:
+
+```bash
+./scripts/qwen-smoke.cjs
+```
+
+If the smoke test returns `provider: qwen_cloud`, record the demo normally. If it returns `deterministic_fallback`, the demo still works, but mention the fallback path instead of waiting on the network.
 
 ## One-Take Command Path
 

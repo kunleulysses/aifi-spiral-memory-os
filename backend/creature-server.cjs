@@ -161,10 +161,7 @@ async function handler(req, res) {
         message: 'spiral_memory_backend_live',
         pid: process.pid,
         llm: {
-          provider: llm.isEnabled() ? 'qwen_cloud' : 'deterministic_fallback',
-          enabled: llm.isEnabled(),
-          model: llm.model,
-          remainingBudget: llm.remainingBudget()
+          ...llm.diagnostics()
         },
         features: {
           careEvents: true,
@@ -178,6 +175,23 @@ async function handler(req, res) {
 
     if (req.method === 'GET' && url.pathname === '/creature/bootstrap') {
       return send(res, 200, state);
+    }
+
+    if (req.method === 'GET' && url.pathname === '/creature/llm') {
+      return send(res, 200, llm.diagnostics());
+    }
+
+    if (req.method === 'POST' && url.pathname === '/creature/llm/smoke') {
+      const result = await llm.generateMemoryText({
+        system: 'Return exactly this JSON shape: {"ok":true,"message":"qwen_cloud_smoke_ok"}.',
+        prompt: 'Smoke test AI-Fi Spiral Memory OS Qwen Cloud integration.',
+        temperature: 0.1,
+        maxTokens: 80
+      });
+      return send(res, 200, {
+        diagnostics: llm.diagnostics(),
+        result
+      });
     }
 
     if (req.method === 'GET' && url.pathname === '/creature/state') {

@@ -13,10 +13,16 @@ class QwenCloudClient {
     this.model = options.model || process.env.AIFI_QWEN_MODEL || process.env.DASHSCOPE_MODEL || DEFAULT_MODEL;
     this.baseUrl = options.baseUrl || process.env.AIFI_QWEN_CHAT_URL || process.env.DASHSCOPE_CHAT_URL || DEFAULT_BASE_URL;
     this.timeoutMs = Number(options.timeoutMs || process.env.AIFI_QWEN_TIMEOUT_MS || 15000);
+    this.retries = Number(options.retries || process.env.AIFI_QWEN_RETRIES || 3);
+    this.retryDelayMs = Number(options.retryDelayMs || process.env.AIFI_QWEN_RETRY_DELAY_MS || 1200);
+    this.ipFamily = Number(options.ipFamily || process.env.AIFI_QWEN_IP_FAMILY || 4);
     this.dailyBudget = Number(options.dailyBudget || process.env.AIFI_QWEN_DAILY_BUDGET || 1000000);
     this.callsToday = 0;
     this.day = new Date().toISOString().slice(0, 10);
     this.backoffUntil = 0;
+    this.lastProvider = 'not_called';
+    this.lastError = null;
+    this.lastLatencyMs = null;
   }
 
   isEnabled() {
@@ -26,6 +32,32 @@ class QwenCloudClient {
   remainingBudget() {
     this.resetIfNeeded();
     return Math.max(0, this.dailyBudget - this.callsToday);
+  }
+
+  diagnostics() {
+    return {
+      provider: this.isEnabled() ? 'qwen_cloud' : 'deterministic_fallback',
+      enabled: this.isEnabled(),
+      model: this.model,
+      baseUrl: this.baseUrl,
+      timeoutMs: this.timeoutMs,
+      retries: this.retries,
+      retryDelayMs: this.retryDelayMs,
+      ipFamily: this.ipFamily,
+      keyPresent: this.isEnabled(),
+      keyFingerprint: this.keyFingerprint(),
+      remainingBudget: this.remainingBudget(),
+      inBackoff: Date.now() < this.backoffUntil,
+      lastProvider: this.lastProvider,
+      lastError: this.lastError,
+      lastLatencyMs: this.lastLatencyMs
+    };
+  }
+
+  keyFingerprint() {
+    if (!this.apiKey) return null;
+    if (this.apiKey.length <= 10) return 'present';
+    return `${this.apiKey.slice(0, 6)}...${this.apiKey.slice(-4)}`;
   }
 
   resetIfNeeded() {
@@ -59,14 +91,22 @@ class QwenCloudClient {
 
     const url = new URL(this.baseUrl);
     this.callsToday += 1;
+    const startedAt = Date.now();
 
     try {
-      const data = await postJson(url, payload, {
+      const data = await retryTransient(async () => postJson(url, payload, {
         authorization: `Bearer ${this.apiKey}`,
-        timeoutMs: this.timeoutMs
+        timeoutMs: this.timeoutMs,
+        ipFamily: this.ipFamily
+      }), {
+        retries: this.retries,
+        delayMs: this.retryDelayMs
       });
       const text = data?.choices?.[0]?.message?.content;
       if (!text) return this.localFallback(prompt, 'empty_qwen_response');
+      this.lastProvider = 'qwen_cloud';
+      this.lastError = null;
+      this.lastLatencyMs = Date.now() - startedAt;
       return {
         ok: true,
         provider: 'qwen_cloud',
@@ -78,6 +118,9 @@ class QwenCloudClient {
       if (/429|rate|quota|thrott/i.test(error.message)) {
         this.backoffUntil = Date.now() + Number(process.env.AIFI_QWEN_BACKOFF_MS || 90_000);
       }
+      this.lastProvider = 'deterministic_fallback';
+      this.lastError = error.message;
+      this.lastLatencyMs = Date.now() - startedAt;
       return this.localFallback(prompt, error.message);
     }
   }
@@ -106,16 +149,45 @@ class QwenCloudClient {
   }
 }
 
-function postJson(url, payload, { authorization, timeoutMs }) {
+function wait(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function isTransient(error) {
+  return /ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|ECONNREFUSED|socket hang up|qwen_timeout|fetch failed/i.test(error.message || '');
+}
+
+async function retryTransient(fn, { retries, delayMs }) {
+  let lastError = null;
+  const maxAttempts = Math.max(1, retries + 1);
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      if (!isTransient(error) || attempt >= maxAttempts) break;
+      await wait(delayMs * attempt);
+    }
+  }
+  throw lastError;
+}
+
+function postJson(url, payload, { authorization, timeoutMs, ipFamily }) {
   return new Promise((resolve, reject) => {
     const req = https.request({
       method: 'POST',
       hostname: url.hostname,
       path: `${url.pathname}${url.search}`,
+      family: ipFamily || undefined,
+      agent: new https.Agent({
+        keepAlive: false,
+        family: ipFamily || undefined
+      }),
       headers: {
         authorization,
         'content-type': 'application/json',
-        'content-length': Buffer.byteLength(payload)
+        'content-length': Buffer.byteLength(payload),
+        'user-agent': 'aifi-spiral-memory-os/0.1'
       },
       timeout: timeoutMs
     }, res => {

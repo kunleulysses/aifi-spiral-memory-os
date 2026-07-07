@@ -9,7 +9,16 @@ The backend uses only built-in Node modules and Qwen Cloud environment variables
 ```bash
 DASHSCOPE_API_KEY=... \
 AIFI_QWEN_MODEL=qwen3.5-flash \
+AIFI_QWEN_TIMEOUT_MS=90000 \
+AIFI_QWEN_RETRIES=4 \
+AIFI_QWEN_IP_FAMILY=4 \
 ./scripts/run-demo-backend.sh
+```
+
+Direct Qwen smoke test:
+
+```bash
+DASHSCOPE_API_KEY=... ./scripts/qwen-smoke.cjs
 ```
 
 The Qwen key must stay in the process environment or deployment secret manager. Do not commit it to this repo or embed it in the iOS app.
